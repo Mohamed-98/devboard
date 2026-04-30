@@ -6,6 +6,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { CacheModule } from '@nestjs/cache-manager';
 import { createKeyv } from '@keyv/redis';
 import { AuthModule } from './auth/auth.module';
+import { UserModule } from './user/user.module';
 
 @Module({
   controllers: [AppController],
@@ -26,6 +27,7 @@ import { AuthModule } from './auth/auth.module';
       inject: [ConfigService],
     }),
     AuthModule,
+    UserModule,
   ],
 })
 export class AppModule {}
