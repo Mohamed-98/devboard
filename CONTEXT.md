@@ -14,9 +14,9 @@
 - ✅ Phase 1 — Environment Setup (complete)
 - ✅ Phase 2 — Project Config & Database (complete)
 - 🔄 Phase 3 — Auth Module (JWT) (in progress)
-  - ⬜ Generate AuthModule: nest g module auth
-  - ⬜ Generate UserModule: nest g module user
-  - ⬜ Define User model in schema.prisma (id, email, password, role, createdAt)
+  - ✅ Generate AuthModule: nest g module auth
+  - ✅ Generate UserModule: nest g module user
+  - ✅ Define User model in schema.prisma (id, email, password, role, createdAt)
   - ⬜ Run first migration: npx prisma migrate dev --name init
   - ⬜ Install bcrypt for password hashing
 
