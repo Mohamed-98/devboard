@@ -13,20 +13,16 @@
 
 - ✅ Phase 1 — Environment Setup (complete)
 - ✅ Phase 2 — Project Config & Database (complete)
-- 🔄 Phase 3 — Auth Module (JWT) (in progress)
-  - ✅ Generate AuthModule: nest g module auth
-  - ✅ Generate UserModule: nest g module user
-  - ✅ Define User model in schema.prisma (id, email, password, role, createdAt)
-  - ✅ Run first migration: npx prisma migrate dev --name init
-  - ✅ Install bcrypt for password hashing
-  - ✅ Install @nestjs/jwt + @nestjs/passport + passport-jwt
-  - ✅ Implement register endpoint (hash password, save user)
-  - ✅ Implement login endpoint (validate, return JWT)
-  - ✅ Implement JWT access token strategy
-  - ✅ Implement refresh token logic
-  - ✅ Create JwtAuthGuard
-  - ✅ Create RolesGuard + @Roles() decorator
-  - ⬜ Test auth flow with Postman
+- ✅ Phase 3 — Auth Module (JWT) (complete)
+- 🔄 Phase 4 — Workspaces & Projects (in progress)
+  - ⬜ Generate WorkspaceModule
+  - ⬜ Add Workspace model to schema.prisma + migrate
+  - ⬜ CRUD endpoints for Workspace (admin only for create/delete)
+  - ⬜ Invite member to workspace endpoint
+  - ⬜ Generate ProjectModule
+  - ⬜ Add Project model to schema.prisma + migrate
+  - ⬜ CRUD endpoints for Project
+  - ⬜ Guard: only workspace members can access projects
 
 ## Key Decisions & Workarounds
 

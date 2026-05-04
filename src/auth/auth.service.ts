@@ -48,15 +48,17 @@ export class AuthService {
     }
 
     const hashedPassword = await bcrypt.hash(registerDto.password, 10);
-    
     const user = await this.userService.create({
       email: registerDto.email,
       password: hashedPassword,
     });
-    console.log(registerDto.email);
+
 
     const { password, ...result } = user;
-    return result;
+    return {
+      message: 'Account created successfully',
+      user: result
+    };
   }
 
   async login(loginDto: LoginDto) {
@@ -73,10 +75,9 @@ export class AuthService {
     const tokens = await this.getTokens(user.id, user.email, user.role);
     await this.updateRefreshToken(user.id, tokens.refresh_token);
 
-    console.log(user.id + ' Logged In successfully');
-
     return {
       ...tokens,
+      message: 'Logged In successfully',
       user: {
         id: user.id,
         email: user.email,
