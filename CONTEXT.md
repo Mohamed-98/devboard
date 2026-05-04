@@ -15,8 +15,8 @@
 - ✅ Phase 2 — Project Config & Database (complete)
 - ✅ Phase 3 — Auth Module (JWT) (complete)
 - 🔄 Phase 4 — Workspaces & Projects (in progress)
-  - ⬜ Generate WorkspaceModule
-  - ⬜ Add Workspace model to schema.prisma + migrate
+  - ✅ Generate WorkspaceModule
+  - ✅ Add Workspace model to schema.prisma + migrate
   - ⬜ CRUD endpoints for Workspace (admin only for create/delete)
   - ⬜ Invite member to workspace endpoint
   - ⬜ Generate ProjectModule
