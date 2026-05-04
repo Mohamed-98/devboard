@@ -17,7 +17,7 @@
 - 🔄 Phase 4 — Workspaces & Projects (in progress)
   - ✅ Generate WorkspaceModule
   - ✅ Add Workspace model to schema.prisma + migrate
-  - ⬜ CRUD endpoints for Workspace (admin only for create/delete)
+  - ✅ CRUD endpoints for Workspace (admin only for create/delete)
   - ⬜ Invite member to workspace endpoint
   - ⬜ Generate ProjectModule
   - ⬜ Add Project model to schema.prisma + migrate
