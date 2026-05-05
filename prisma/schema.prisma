@@ -30,7 +30,20 @@ model Workspace {
   updatedAt   DateTime @updatedAt
 
   members     User[]   @relation("WorkspaceMembers")
+  projects    Project[]
 }
+
+model Project {
+  id          String    @id @default(uuid())
+  name        String
+  description String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  workspace   Workspace @relation(fields: [workspaceId], references: [id])
+  workspaceId String
+}
+
 
 enum Role {
   USER

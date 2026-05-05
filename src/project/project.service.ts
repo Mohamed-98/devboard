@@ -1,26 +1,75 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateProjectDto } from './dto/create-project.dto';
 import { UpdateProjectDto } from './dto/update-project.dto';
+import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
 export class ProjectService {
-  create(createProjectDto: CreateProjectDto) {
-    return 'This action adds a new project';
+  constructor(private prisma: PrismaService) {}
+
+  async create(createProjectDto: CreateProjectDto) {
+    // Ensure workspace exists
+    const workspace = await this.prisma.workspace.findUnique({
+      where: { id: createProjectDto.workspaceId },
+    });
+
+    if (!workspace) {
+      throw new NotFoundException(`Workspace with ID ${createProjectDto.workspaceId} not found`);
+    }
+
+    return this.prisma.project.create({
+      data: createProjectDto,
+    });
   }
 
-  findAll() {
-    return `This action returns all project`;
+  async findAll() {
+    return this.prisma.project.findMany({
+      include: {
+        workspace: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+      },
+    });
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} project`;
+  async findOne(id: string) {
+    const project = await this.prisma.project.findUnique({
+      where: { id },
+      include: {
+        workspace: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+      },
+    });
+
+    if (!project) {
+      throw new NotFoundException(`Project with ID ${id} not found`);
+    }
+
+    return project;
   }
 
-  update(id: number, updateProjectDto: UpdateProjectDto) {
-    return `This action updates a #${id} project`;
+  async update(id: string, updateProjectDto: UpdateProjectDto) {
+    await this.findOne(id); // Ensure it exists
+
+    return this.prisma.project.update({
+      where: { id },
+      data: updateProjectDto,
+    });
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} project`;
+  async remove(id: string) {
+    await this.findOne(id); // Ensure it exists
+
+    return this.prisma.project.delete({
+      where: { id },
+    });
   }
 }
+
