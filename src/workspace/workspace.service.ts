@@ -60,5 +60,39 @@ export class WorkspaceService {
       where: { id },
     });
   }
+
+  async inviteMember(workspaceId: string, userId: string) {
+    // Ensure workspace exists
+    await this.findOne(workspaceId);
+
+    // Ensure user exists
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+    });
+
+    if (!user) {
+      throw new NotFoundException(`User with ID ${userId} not found`);
+    }
+
+    // Connect user to workspace
+    return this.prisma.workspace.update({
+      where: { id: workspaceId },
+      data: {
+        members: {
+          connect: { id: userId },
+        },
+      },
+      include: {
+        members: {
+          select: {
+            id: true,
+            email: true,
+            role: true,
+          },
+        },
+      },
+    });
+  }
 }
+
 

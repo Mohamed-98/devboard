@@ -8,6 +8,7 @@ import { createKeyv } from '@keyv/redis';
 import { AuthModule } from './auth/auth.module';
 import { UserModule } from './user/user.module';
 import { WorkspaceModule } from './workspace/workspace.module';
+import { ProjectModule } from './project/project.module';
 
 @Module({
   controllers: [AppController],
@@ -30,6 +31,7 @@ import { WorkspaceModule } from './workspace/workspace.module';
     AuthModule,
     UserModule,
     WorkspaceModule,
+    ProjectModule,
   ],
 })
 export class AppModule {}

@@ -2,6 +2,7 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards } from '@n
 import { WorkspaceService } from './workspace.service';
 import { CreateWorkspaceDto } from './dto/create-workspace.dto';
 import { UpdateWorkspaceDto } from './dto/update-workspace.dto';
+import { InviteMemberDto } from './dto/invite-member.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
@@ -17,6 +18,13 @@ export class WorkspaceController {
   @Roles(Role.ADMIN)
   create(@Body() createWorkspaceDto: CreateWorkspaceDto) {
     return this.workspaceService.create(createWorkspaceDto);
+  }
+
+  @Post(':id/members')
+  @UseGuards(RolesGuard)
+  @Roles(Role.ADMIN)
+  inviteMember(@Param('id') id: string, @Body() inviteMemberDto: InviteMemberDto) {
+    return this.workspaceService.inviteMember(id, inviteMemberDto.userId);
   }
 
   @Get()
@@ -43,4 +51,5 @@ export class WorkspaceController {
     return this.workspaceService.remove(id);
   }
 }
+
 
