@@ -2,6 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateProjectDto } from './dto/create-project.dto';
 import { UpdateProjectDto } from './dto/update-project.dto';
 import { PrismaService } from '../prisma/prisma.service';
+import { Role } from 'generated/prisma/client';
 
 @Injectable()
 export class ProjectService {
@@ -22,8 +23,19 @@ export class ProjectService {
     });
   }
 
-  async findAll() {
+  async findAll(user: any) {
+    const where = user.role === Role.ADMIN
+      ? {}
+      : {
+          workspace: {
+            members: {
+              some: { id: user.id },
+            },
+          },
+        };
+
     return this.prisma.project.findMany({
+      where,
       include: {
         workspace: {
           select: {
@@ -34,6 +46,7 @@ export class ProjectService {
       },
     });
   }
+
 
   async findOne(id: string) {
     const project = await this.prisma.project.findUnique({

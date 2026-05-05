@@ -22,7 +22,7 @@
   - ✅ Generate ProjectModule
   - ✅ Add Project model to schema.prisma + migrate
   - ✅ CRUD endpoints for Project
-  - ⬜ Guard: only workspace members can access projects
+  - ✅ Guard: only workspace members can access projects
 
 ## Key Decisions & Workarounds
 

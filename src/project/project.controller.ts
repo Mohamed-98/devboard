@@ -3,9 +3,11 @@ import { ProjectService } from './project.service';
 import { CreateProjectDto } from './dto/create-project.dto';
 import { UpdateProjectDto } from './dto/update-project.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { WorkspaceMemberGuard } from '../workspace/guards/workspace-member.guard';
+import { GetUser } from '../auth/decorators/get-user.decorator';
 
 @Controller('project')
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, WorkspaceMemberGuard)
 export class ProjectController {
   constructor(private readonly projectService: ProjectService) {}
 
@@ -15,9 +17,10 @@ export class ProjectController {
   }
 
   @Get()
-  findAll() {
-    return this.projectService.findAll();
+  findAll(@GetUser() user: any) {
+    return this.projectService.findAll(user);
   }
+
 
   @Get(':id')
   findOne(@Param('id') id: string) {
@@ -34,4 +37,5 @@ export class ProjectController {
     return this.projectService.remove(id);
   }
 }
+
 
