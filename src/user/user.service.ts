@@ -1,10 +1,14 @@
 import { Injectable, ConflictException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { Prisma } from 'generated/prisma/client';
+import { Prisma, Role } from 'generated/prisma/client';
 
 @Injectable()
 export class UserService {
   constructor(private readonly prisma: PrismaService) {}
+
+  updateRole(id: string, role: Role) {
+  return this.prisma.user.update({ where: { id }, data: { role } });
+}
 
   async create(data: Prisma.UserCreateInput) {
     try {
