@@ -16,18 +16,17 @@
 - ✅ Phase 3 — Auth Module (JWT) (complete)
 - ✅ Phase 4 — Workspaces & Projects (complete)
 - 🔄 Phase 5 — Tasks & Comments (in progress)
-  - ⬜ Generate TaskModule
-  - ⬜ Add Task model to schema.prisma (id, title, description, status, priority, assignee, dueDate)
-  - ⬜ Task status enum: todo / in_progress / done
-  - ⬜ Task priority enum: low / medium / high
-  - ⬜ CRUD endpoints for Task
+  - ✅ Generate TaskModule
+  - ✅ Add Task model to schema.prisma (id, title, description, status, priority, assignee, dueDate)
+  - ✅ Task status enum: todo / in_progress / done
+  - ✅ Task priority enum: low / medium / high
+  - ✅ CRUD endpoints for Task
   - ⬜ Assign task to workspace member endpoint
   - ⬜ Filter tasks by status, priority, assignee (query params)
   - ⬜ Pagination on task list endpoint
   - ⬜ Generate CommentModule
   - ⬜ Add Comment model to schema.prisma + migrate
   - ⬜ Add / delete comment endpoints
-
 
 ## Key Decisions & Workarounds
 
