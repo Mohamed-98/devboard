@@ -27,19 +27,29 @@ export class WorkspaceMemberGuard implements CanActivate {
 
     let workspaceId = request.params.workspaceId || request.body.workspaceId;
 
-    // If no workspaceId in params or body, but there's a projectId, look it up
-    const projectId = request.params.id;
-    if (!workspaceId && projectId) {
+    // If no workspaceId in params or body, but there's an id param, look it up
+    const resourceId = request.params.id;
+    if (!workspaceId && resourceId) {
+      // Try to find if it's a project
       const project = await this.prisma.project.findUnique({
-        where: { id: projectId },
+        where: { id: resourceId },
         select: { workspaceId: true },
       });
 
-      if (!project) {
-        throw new NotFoundException(`Project with ID ${projectId} not found`);
+      if (project) {
+        workspaceId = project.workspaceId;
+      } else {
+        // Try to find if it's a task
+        const task = await this.prisma.task.findUnique({
+          where: { id: resourceId },
+          include: { project: { select: { workspaceId: true } } },
+        });
+        if (task) {
+          workspaceId = task.project.workspaceId;
+        }
       }
-      workspaceId = project.workspaceId;
     }
+
 
     if (!workspaceId) {
       // For general list endpoints, we might want to handle this differently

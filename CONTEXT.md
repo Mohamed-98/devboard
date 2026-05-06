@@ -21,7 +21,7 @@
   - ✅ Task status enum: todo / in_progress / done
   - ✅ Task priority enum: low / medium / high
   - ✅ CRUD endpoints for Task
-  - ⬜ Assign task to workspace member endpoint
+  - ✅ Assign task to workspace member endpoint
   - ⬜ Filter tasks by status, priority, assignee (query params)
   - ⬜ Pagination on task list endpoint
   - ⬜ Generate CommentModule
