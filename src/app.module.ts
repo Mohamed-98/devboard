@@ -9,6 +9,7 @@ import { AuthModule } from './auth/auth.module';
 import { UserModule } from './user/user.module';
 import { WorkspaceModule } from './workspace/workspace.module';
 import { ProjectModule } from './project/project.module';
+import { TaskModule } from './task/task.module';
 
 @Module({
   controllers: [AppController],
@@ -32,6 +33,7 @@ import { ProjectModule } from './project/project.module';
     UserModule,
     WorkspaceModule,
     ProjectModule,
+    TaskModule,
   ],
 })
 export class AppModule {}
