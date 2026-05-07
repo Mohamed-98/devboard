@@ -16,11 +16,12 @@
 - ✅ Phase 3 — Auth Module (JWT) (complete)
 - ✅ Phase 4 — Workspaces & Projects (complete)
 - ✅ Phase 5 — Tasks & Comments (complete)
-- 🔄 Phase 6 — Activity Log (in progress)
-  - ✅ Generate ActivityLogModule
-  - ✅ Add ActivityLog model to schema.prisma + migrate
-  - ✅ Hook into task create / update / delete to write logs
-  - ✅ Endpoint: get activity log for a task
+- ✅ Phase 6 — Activity Log (complete)
+- 🔄 Phase 7 — Redis Caching (in progress)
+  - ⬜ Cache task list responses per project
+  - ⬜ Invalidate cache on task create / update / delete
+  - ⬜ Cache user profile lookups
+  - ⬜ Test cache hit/miss behavior
 
 ## Key Decisions & Workarounds
 
