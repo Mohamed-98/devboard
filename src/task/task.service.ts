@@ -1,7 +1,9 @@
 import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
+import { TaskFilterDto } from './dto/task-filter.dto';
 import { PrismaService } from '../prisma/prisma.service';
+
 
 @Injectable()
 export class TaskService {
@@ -21,8 +23,16 @@ export class TaskService {
     });
   }
 
-  async findAll() {
+  async findAll(filters: TaskFilterDto = {}) {
+    const { status, priority, assigneeId, projectId } = filters;
+
     return this.prisma.task.findMany({
+      where: {
+        status,
+        priority,
+        assigneeId,
+        projectId,
+      },
       include: {
         assignee: {
           select: { id: true, email: true },
@@ -33,6 +43,7 @@ export class TaskService {
       },
     });
   }
+
 
   async findOne(id: string) {
     const task = await this.prisma.task.findUnique({
