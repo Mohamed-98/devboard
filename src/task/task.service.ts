@@ -24,25 +24,44 @@ export class TaskService {
   }
 
   async findAll(filters: TaskFilterDto = {}) {
-    const { status, priority, assigneeId, projectId } = filters;
+    const { status, priority, assigneeId, projectId, page = 1, limit = 10 } = filters;
+    const skip = (page - 1) * limit;
 
-    return this.prisma.task.findMany({
-      where: {
-        status,
-        priority,
-        assigneeId,
-        projectId,
-      },
-      include: {
-        assignee: {
-          select: { id: true, email: true },
+    const where = {
+      status,
+      priority,
+      assigneeId,
+      projectId,
+    };
+
+    const [data, total] = await Promise.all([
+      this.prisma.task.findMany({
+        where,
+        skip,
+        take: limit,
+        include: {
+          assignee: {
+            select: { id: true, email: true },
+          },
+          project: {
+            select: { id: true, name: true, workspaceId: true },
+          },
         },
-        project: {
-          select: { id: true, name: true, workspaceId: true },
-        },
+        orderBy: { createdAt: 'desc' },
+      }),
+      this.prisma.task.count({ where }),
+    ]);
+
+    return {
+      data,
+      meta: {
+        total,
+        page,
+        lastPage: Math.ceil(total / limit),
       },
-    });
+    };
   }
+
 
 
   async findOne(id: string) {
