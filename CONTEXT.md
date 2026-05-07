@@ -19,8 +19,8 @@
 - 🔄 Phase 6 — Activity Log (in progress)
   - ✅ Generate ActivityLogModule
   - ✅ Add ActivityLog model to schema.prisma + migrate
-  - ⬜ Hook into task create / update / delete to write logs
-  - ⬜ Endpoint: get activity log for a task
+  - ✅ Hook into task create / update / delete to write logs
+  - ✅ Endpoint: get activity log for a task
 
 ## Key Decisions & Workarounds
 

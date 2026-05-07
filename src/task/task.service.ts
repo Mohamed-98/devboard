@@ -5,11 +5,16 @@ import { TaskFilterDto } from './dto/task-filter.dto';
 import { PrismaService } from '../prisma/prisma.service';
 
 
+import { ActivityLogService } from '../activity-log/activity-log.service';
+
 @Injectable()
 export class TaskService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private activityLogService: ActivityLogService,
+  ) {}
 
-  async create(createTaskDto: CreateTaskDto) {
+  async create(createTaskDto: CreateTaskDto, userId: string) {
     const project = await this.prisma.project.findUnique({
       where: { id: createTaskDto.projectId },
     });
@@ -18,9 +23,13 @@ export class TaskService {
       throw new NotFoundException(`Project with ID ${createTaskDto.projectId} not found`);
     }
 
-    return this.prisma.task.create({
+    const task = await this.prisma.task.create({
       data: createTaskDto,
     });
+
+    await this.activityLogService.createLog(task.id, userId, 'CREATE', `Task created: ${task.title}`);
+
+    return task;
   }
 
   async findAll(filters: TaskFilterDto = {}) {
@@ -84,22 +93,30 @@ export class TaskService {
     return task;
   }
 
-  async update(id: string, updateTaskDto: UpdateTaskDto) {
+  async update(id: string, updateTaskDto: UpdateTaskDto, userId: string) {
     await this.findOne(id);
-    return this.prisma.task.update({
+    const updatedTask = await this.prisma.task.update({
       where: { id },
       data: updateTaskDto,
     });
+
+    await this.activityLogService.createLog(id, userId, 'UPDATE', `Task updated: ${Object.keys(updateTaskDto).join(', ')}`);
+
+    return updatedTask;
   }
 
-  async remove(id: string) {
-    await this.findOne(id);
+  async remove(id: string, userId: string) {
+    const task = await this.findOne(id);
+    
+    // Log before deletion because of Cascade constraint
+    await this.activityLogService.createLog(id, userId, 'DELETE', `Task deleted: ${task.title}`);
+
     return this.prisma.task.delete({
       where: { id },
     });
   }
 
-  async assignTask(taskId: string, userId: string) {
+  async assignTask(taskId: string, userId: string, actorId: string) {
     const task = await this.findOne(taskId);
 
     // Verify user exists and is a member of the workspace
@@ -116,7 +133,7 @@ export class TaskService {
       throw new BadRequestException('User is not a member of the workspace or does not exist');
     }
 
-    return this.prisma.task.update({
+    const updatedTask = await this.prisma.task.update({
       where: { id: taskId },
       data: { assigneeId: userId },
       include: {
@@ -125,6 +142,10 @@ export class TaskService {
         },
       },
     });
+
+    await this.activityLogService.createLog(taskId, actorId, 'ASSIGN', `Task assigned to user ${userId}`);
+
+    return updatedTask;
   }
 }
 

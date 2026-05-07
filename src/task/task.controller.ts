@@ -6,6 +6,7 @@ import { TaskFilterDto } from './dto/task-filter.dto';
 import { AssignTaskDto } from './dto/assign-task.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { WorkspaceMemberGuard } from '../workspace/guards/workspace-member.guard';
+import { GetUser } from '../auth/decorators/get-user.decorator';
 
 @Controller('task')
 @UseGuards(JwtAuthGuard, WorkspaceMemberGuard)
@@ -13,8 +14,8 @@ export class TaskController {
   constructor(private readonly taskService: TaskService) {}
 
   @Post()
-  create(@Body() createTaskDto: CreateTaskDto) {
-    return this.taskService.create(createTaskDto);
+  create(@Body() createTaskDto: CreateTaskDto, @GetUser('id') userId: string) {
+    return this.taskService.create(createTaskDto, userId);
   }
 
   @Get()
@@ -29,18 +30,19 @@ export class TaskController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateTaskDto: UpdateTaskDto) {
-    return this.taskService.update(id, updateTaskDto);
+  update(@Param('id') id: string, @Body() updateTaskDto: UpdateTaskDto, @GetUser('id') userId: string) {
+    return this.taskService.update(id, updateTaskDto, userId);
   }
 
   @Patch(':id/assign')
-  assign(@Param('id') id: string, @Body() assignTaskDto: AssignTaskDto) {
-    return this.taskService.assignTask(id, assignTaskDto.userId);
+  assign(@Param('id') id: string, @Body() assignTaskDto: AssignTaskDto, @GetUser('id') userId: string) {
+    return this.taskService.assignTask(id, assignTaskDto.userId, userId);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.taskService.remove(id);
+  remove(@Param('id') id: string, @GetUser('id') userId: string) {
+    return this.taskService.remove(id, userId);
   }
 }
+
 

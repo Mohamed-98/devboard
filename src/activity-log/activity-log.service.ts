@@ -1,26 +1,41 @@
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+/* eslint-disable @typescript-eslint/no-unsafe-return */
 import { Injectable } from '@nestjs/common';
-import { CreateActivityLogDto } from './dto/create-activity-log.dto';
-import { UpdateActivityLogDto } from './dto/update-activity-log.dto';
+import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
 export class ActivityLogService {
-  create(createActivityLogDto: CreateActivityLogDto) {
-    return 'This action adds a new activityLog';
+  constructor(private prisma: PrismaService) {}
+
+  async createLog(
+    taskId: string,
+    userId: string,
+    action: string,
+    details?: string,
+  ) {
+    return await this.prisma.activityLog.create({
+      data: {
+        taskId,
+        userId,
+        action,
+        details,
+      },
+    });
   }
 
-  findAll() {
-    return `This action returns all activityLog`;
-  }
-
-  findOne(id: number) {
-    return `This action returns a #${id} activityLog`;
-  }
-
-  update(id: number, updateActivityLogDto: UpdateActivityLogDto) {
-    return `This action updates a #${id} activityLog`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} activityLog`;
+  async findByTaskId(taskId: string) {
+    return await this.prisma.activityLog.findMany({
+      where: { taskId },
+      orderBy: { createdAt: 'desc' },
+      include: {
+        user: {
+          select: {
+            id: true,
+            email: true,
+          },
+        },
+      },
+    });
   }
 }
