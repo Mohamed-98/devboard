@@ -11,6 +11,7 @@ import { WorkspaceModule } from './workspace/workspace.module';
 import { ProjectModule } from './project/project.module';
 import { TaskModule } from './task/task.module';
 import { CommentModule } from './comment/comment.module';
+import { ActivityLogModule } from './activity-log/activity-log.module';
 
 @Module({
   controllers: [AppController],
@@ -36,6 +37,7 @@ import { CommentModule } from './comment/comment.module';
     ProjectModule,
     TaskModule,
     CommentModule,
+    ActivityLogModule,
   ],
 })
 export class AppModule {}

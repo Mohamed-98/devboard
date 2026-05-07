@@ -22,6 +22,7 @@ model User {
   workspaces Workspace[] @relation("WorkspaceMembers")
   assignedTasks Task[]
   comments Comment[]
+  activityLogs ActivityLog[]
 }
 
 model Workspace {
@@ -63,6 +64,7 @@ model Task {
   assignee    User?        @relation(fields: [assigneeId], references: [id])
   assigneeId  String?
   comments    Comment[]
+  activityLogs ActivityLog[]
 }
 
 model Comment {
@@ -76,6 +78,19 @@ model Comment {
 
   author    User     @relation(fields: [authorId], references: [id])
   authorId  String
+}
+
+model ActivityLog {
+  id        String   @id @default(uuid())
+  action    String
+  details   String?
+  createdAt DateTime @default(now())
+
+  task      Task     @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  taskId    String
+
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String
 }
 
 enum Role {
