@@ -26,7 +26,7 @@
   - ✅ Pagination on task list endpoint
   - ✅ Generate CommentModule
   - ✅ Add Comment model to schema.prisma + migrate
-  - ⬜ Add / delete comment endpoints
+  - ✅ Add / delete comment endpoints
 
 ## Key Decisions & Workarounds
 
