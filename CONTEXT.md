@@ -24,8 +24,8 @@
   - ✅ Assign task to workspace member endpoint
   - ✅ Filter tasks by status, priority, assignee (query params)
   - ✅ Pagination on task list endpoint
-  - ⬜ Generate CommentModule
-  - ⬜ Add Comment model to schema.prisma + migrate
+  - ✅ Generate CommentModule
+  - ✅ Add Comment model to schema.prisma + migrate
   - ⬜ Add / delete comment endpoints
 
 ## Key Decisions & Workarounds
