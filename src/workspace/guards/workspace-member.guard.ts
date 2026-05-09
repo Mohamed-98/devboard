@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import {
   Injectable,
   CanActivate,
@@ -100,7 +99,9 @@ export class WorkspaceMemberGuard implements CanActivate {
       // If we've reached here, it means we couldn't resolve a workspaceId
       // and the endpoint didn't have @SkipWorkspaceCheck().
       // To be safe and prevent data leaks (Bug #2), we deny access.
-      throw new ForbiddenException('Workspace context is required for this request');
+      throw new ForbiddenException(
+        'Workspace context is required for this request',
+      );
     }
 
     // Ensure workspaceId is a valid UUID before querying Prisma
