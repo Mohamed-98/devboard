@@ -1,4 +1,6 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException, Inject } from '@nestjs/common';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import { Cache } from 'cache-manager';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
 import { TaskFilterDto } from './dto/task-filter.dto';
@@ -12,6 +14,7 @@ export class TaskService {
   constructor(
     private prisma: PrismaService,
     private activityLogService: ActivityLogService,
+    @Inject(CACHE_MANAGER) private cacheManager: Cache,
   ) {}
 
   async create(createTaskDto: CreateTaskDto, userId: string) {
@@ -34,6 +37,14 @@ export class TaskService {
 
   async findAll(filters: TaskFilterDto = {}) {
     const { status, priority, assigneeId, projectId, page = 1, limit = 10 } = filters;
+    
+    const cacheKey = projectId ? `tasks:project:${projectId}:${JSON.stringify(filters)}` : null;
+    
+    if (cacheKey) {
+      const cached = await this.cacheManager.get(cacheKey);
+      if (cached) return cached;
+    }
+
     const skip = (page - 1) * limit;
 
     const where = {
@@ -61,7 +72,7 @@ export class TaskService {
       this.prisma.task.count({ where }),
     ]);
 
-    return {
+    const result = {
       data,
       meta: {
         total,
@@ -69,6 +80,12 @@ export class TaskService {
         lastPage: Math.ceil(total / limit),
       },
     };
+
+    if (cacheKey) {
+      await this.cacheManager.set(cacheKey, result, 60000); // 1 minute cache
+    }
+
+    return result;
   }
 
 

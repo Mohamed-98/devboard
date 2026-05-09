@@ -18,7 +18,7 @@
 - ✅ Phase 5 — Tasks & Comments (complete)
 - ✅ Phase 6 — Activity Log (complete)
 - 🔄 Phase 7 — Redis Caching (in progress)
-  - ⬜ Cache task list responses per project
+  - ✅ Cache task list responses per project
   - ⬜ Invalidate cache on task create / update / delete
   - ⬜ Cache user profile lookups
   - ⬜ Test cache hit/miss behavior
