@@ -20,7 +20,7 @@
 - ✅ Phase 7 — Redis Caching (complete)
 - 🔄 Phase 8 — Docker & GitHub (in progress)
   - ✅ Write Dockerfile for NestJS app
-  - ⬜ Add app service to docker-compose.yml
+  - ✅ Add app service to docker-compose.yml
   - ✅ Add .dockerignore
   - ⬜ Test full stack with: docker compose up --build
   - ⬜ Create GitHub repo and push project
