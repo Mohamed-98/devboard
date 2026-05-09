@@ -32,13 +32,19 @@ export class TaskService {
 
     await this.activityLogService.createLog(task.id, userId, 'CREATE', `Task created: ${task.title}`);
 
+    await this.invalidateCache(task.projectId);
+
     return task;
   }
 
   async findAll(filters: TaskFilterDto = {}) {
     const { status, priority, assigneeId, projectId, page = 1, limit = 10 } = filters;
     
-    const cacheKey = projectId ? `tasks:project:${projectId}:${JSON.stringify(filters)}` : null;
+    let cacheKey: string | null = null;
+    if (projectId) {
+      const version = (await this.cacheManager.get<number>(`tasks:project:${projectId}:version`)) || 0;
+      cacheKey = `tasks:project:${projectId}:v${version}:${JSON.stringify(filters)}`;
+    }
     
     if (cacheKey) {
       const cached = await this.cacheManager.get(cacheKey);
@@ -111,13 +117,18 @@ export class TaskService {
   }
 
   async update(id: string, updateTaskDto: UpdateTaskDto, userId: string) {
-    await this.findOne(id);
+    const task = await this.findOne(id);
     const updatedTask = await this.prisma.task.update({
       where: { id },
       data: updateTaskDto,
     });
 
     await this.activityLogService.createLog(id, userId, 'UPDATE', `Task updated: ${Object.keys(updateTaskDto).join(', ')}`);
+
+    await this.invalidateCache(task.projectId);
+    if (updatedTask.projectId !== task.projectId) {
+      await this.invalidateCache(updatedTask.projectId);
+    }
 
     return updatedTask;
   }
@@ -127,6 +138,8 @@ export class TaskService {
     
     // Log before deletion because of Cascade constraint
     await this.activityLogService.createLog(id, userId, 'DELETE', `Task deleted: ${task.title}`);
+
+    await this.invalidateCache(task.projectId);
 
     return this.prisma.task.delete({
       where: { id },
@@ -162,7 +175,16 @@ export class TaskService {
 
     await this.activityLogService.createLog(taskId, actorId, 'ASSIGN', `Task assigned to user ${userId}`);
 
+    await this.invalidateCache(updatedTask.projectId);
+
     return updatedTask;
+  }
+
+  private async invalidateCache(projectId: string) {
+    if (projectId) {
+      const version = (await this.cacheManager.get<number>(`tasks:project:${projectId}:version`)) || 0;
+      await this.cacheManager.set(`tasks:project:${projectId}:version`, version + 1, 86400000); // 24 hours
+    }
   }
 }
 
