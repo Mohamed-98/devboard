@@ -1,0 +1,17 @@
+node_modules
+dist
+generated
+.git
+.gitignore
+.env
+Dockerfile
+docker-compose.yml
+npm-debug.log
+README.md
+CONTEXT.md
+AGENTS.md
+scratch
+coverage
+test
+*.spec.ts
+*.test.ts

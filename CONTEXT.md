@@ -17,11 +17,15 @@
 - ✅ Phase 4 — Workspaces & Projects (complete)
 - ✅ Phase 5 — Tasks & Comments (complete)
 - ✅ Phase 6 — Activity Log (complete)
-- 🔄 Phase 7 — Redis Caching (in progress)
-  - ✅ Cache task list responses per project
-  - ✅ Invalidate cache on task create / update / delete
-  - ✅ Cache user profile lookups
-  - ✅ Test cache hit/miss behavior
+- ✅ Phase 7 — Redis Caching (complete)
+- 🔄 Phase 8 — Docker & GitHub (in progress)
+  - ✅ Write Dockerfile for NestJS app
+  - ⬜ Add app service to docker-compose.yml
+  - ✅ Add .dockerignore
+  - ⬜ Test full stack with: docker compose up --build
+  - ⬜ Create GitHub repo and push project
+  - ⬜ Write README with setup instructions
+  - ⬜ .env.example committed (never .env itself)
 
 ## Key Decisions & Workarounds
 
