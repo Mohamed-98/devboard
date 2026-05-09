@@ -6,10 +6,13 @@ import { InviteMemberDto } from './dto/invite-member.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
+import { GetUser } from '../auth/decorators/get-user.decorator';
 import { Role } from 'generated/prisma/client';
 
+import { WorkspaceMemberGuard } from './guards/workspace-member.guard';
+
 @Controller('workspace')
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, WorkspaceMemberGuard)
 export class WorkspaceController {
   constructor(private readonly workspaceService: WorkspaceService) {}
 
@@ -28,8 +31,8 @@ export class WorkspaceController {
   }
 
   @Get()
-  findAll() {
-    return this.workspaceService.findAll();
+  findAll(@GetUser('id') userId: string, @GetUser('role') role: Role) {
+    return this.workspaceService.findAll(userId, role);
   }
 
   @Get(':id')

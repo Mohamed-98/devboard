@@ -67,6 +67,15 @@ export class WorkspaceMemberGuard implements CanActivate {
         });
         if (task) {
           workspaceId = task.project.workspaceId;
+        } else {
+          // Check if the resourceId itself is a workspaceId
+          const workspace = await this.prisma.workspace.findUnique({
+            where: { id: resourceId },
+            select: { id: true },
+          });
+          if (workspace) {
+            workspaceId = workspace.id;
+          }
         }
       }
     }

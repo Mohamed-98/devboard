@@ -13,8 +13,15 @@ export class WorkspaceService {
     });
   }
 
-  async findAll() {
+  async findAll(userId: string, role: string) {
+    const where = role === 'ADMIN' ? {} : {
+      members: {
+        some: { id: userId },
+      },
+    };
+
     return this.prisma.workspace.findMany({
+      where,
       include: {
         _count: {
           select: { members: true },
