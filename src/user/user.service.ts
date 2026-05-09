@@ -1,12 +1,15 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
-import { Injectable, ConflictException, Inject } from '@nestjs/common';
+import { Injectable, ConflictException, Inject, Logger } from '@nestjs/common';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
 import { PrismaService } from '../prisma/prisma.service';
-import { Prisma, Role } from 'generated/prisma/client';
+import { Prisma, Role, User } from 'generated/prisma/client';
 
 @Injectable()
 export class UserService {
+  private readonly logger = new Logger(UserService.name);
+
   constructor(
     private readonly prisma: PrismaService,
     @Inject(CACHE_MANAGER) private cacheManager: Cache,
@@ -32,10 +35,14 @@ export class UserService {
     }
   }
 
-  async findByEmail(email: string) {
+  async findByEmail(email: string): Promise<User | null> {
     const cacheKey = `user:email:${email}`;
-    const cached = await this.cacheManager.get(cacheKey);
-    if (cached) return cached;
+    const cached = await this.cacheManager.get<User>(cacheKey);
+    if (cached) {
+      this.logger.log(`Cache HIT for user:email:${email}`);
+      return cached;
+    }
+    this.logger.log(`Cache MISS for user:email:${email}`);
 
     const user = await this.prisma.user.findUnique({ where: { email } });
     if (user) {
@@ -48,10 +55,14 @@ export class UserService {
     return this.prisma.user.findMany();
   }
 
-  async findOne(id: string) {
+  async findOne(id: string): Promise<User | null> {
     const cacheKey = `user:id:${id}`;
-    const cached = await this.cacheManager.get(cacheKey);
-    if (cached) return cached;
+    const cached = await this.cacheManager.get<User>(cacheKey);
+    if (cached) {
+      this.logger.log(`Cache HIT for user:id:${id}`);
+      return cached;
+    }
+    this.logger.log(`Cache MISS for user:id:${id}`);
 
     const user = await this.prisma.user.findUnique({ where: { id } });
     if (user) {

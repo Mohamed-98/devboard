@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, BadRequestException, Inject } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException, Inject, Logger } from '@nestjs/common';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
 import { CreateTaskDto } from './dto/create-task.dto';
@@ -11,6 +11,8 @@ import { ActivityLogService } from '../activity-log/activity-log.service';
 
 @Injectable()
 export class TaskService {
+  private readonly logger = new Logger(TaskService.name);
+
   constructor(
     private prisma: PrismaService,
     private activityLogService: ActivityLogService,
@@ -48,7 +50,11 @@ export class TaskService {
     
     if (cacheKey) {
       const cached = await this.cacheManager.get(cacheKey);
-      if (cached) return cached;
+      if (cached) {
+        this.logger.log(`Cache HIT for tasks:project:${projectId}`);
+        return cached;
+      }
+      this.logger.log(`Cache MISS for tasks:project:${projectId}`);
     }
 
     const skip = (page - 1) * limit;

@@ -21,7 +21,7 @@
   - ✅ Cache task list responses per project
   - ✅ Invalidate cache on task create / update / delete
   - ✅ Cache user profile lookups
-  - ⬜ Test cache hit/miss behavior
+  - ✅ Test cache hit/miss behavior
 
 ## Key Decisions & Workarounds
 
