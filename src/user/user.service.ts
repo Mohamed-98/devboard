@@ -1,8 +1,9 @@
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import { Injectable, ConflictException, Inject } from '@nestjs/common';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
 import { PrismaService } from '../prisma/prisma.service';
-import { Prisma, Role, User } from 'generated/prisma/client';
+import { Prisma, Role } from 'generated/prisma/client';
 
 @Injectable()
 export class UserService {
@@ -12,7 +13,10 @@ export class UserService {
   ) {}
 
   async updateRole(id: string, role: Role) {
-    const updatedUser = await this.prisma.user.update({ where: { id }, data: { role } });
+    const updatedUser = await this.prisma.user.update({
+      where: { id },
+      data: { role },
+    });
     await this.invalidateUserCache(updatedUser);
     return updatedUser;
   }
@@ -28,9 +32,9 @@ export class UserService {
     }
   }
 
-  async findByEmail(email: string): Promise<User | null> {
+  async findByEmail(email: string) {
     const cacheKey = `user:email:${email}`;
-    const cached = await this.cacheManager.get<User>(cacheKey);
+    const cached = await this.cacheManager.get(cacheKey);
     if (cached) return cached;
 
     const user = await this.prisma.user.findUnique({ where: { email } });
@@ -44,9 +48,9 @@ export class UserService {
     return this.prisma.user.findMany();
   }
 
-  async findOne(id: string): Promise<User | null> {
+  async findOne(id: string) {
     const cacheKey = `user:id:${id}`;
-    const cached = await this.cacheManager.get<User>(cacheKey);
+    const cached = await this.cacheManager.get(cacheKey);
     if (cached) return cached;
 
     const user = await this.prisma.user.findUnique({ where: { id } });
