@@ -101,4 +101,9 @@ export class AuthService {
     
     return tokens;
   }
+
+  async logout(userId: string) {
+    await this.cacheManager.del(`rt:${userId}`);
+    return { message: 'Logged out successfully' };
+  }
 }
