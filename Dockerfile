@@ -14,7 +14,7 @@ RUN npm install
 
 # Copy Prisma schema and generated folder (if it exists)
 COPY prisma ./prisma/
-COPY prisma.config.ts ./
+#COPY prisma.config.ts ./
 
 # Copy the rest of the application code
 COPY . .
@@ -41,11 +41,12 @@ RUN adduser --system --uid 1001 nestjs
 ENV NODE_ENV=production
 
 # Copy only the necessary files from the builder stage
-COPY --from=builder /app ./
-#COPY --from=builder /app/node_modules ./node_modules
-#COPY --from=builder /app/package.json ./package.json
-#COPY --from=builder /app/generated ./generated
-#COPY --from=builder /app/prisma ./prisma
+COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/package.json ./package.json
+COPY --from=builder /app/generated ./generated
+COPY --from=builder /app/prisma ./prisma
+COPY --from=builder /app/tsconfig.json ./
 
 # Change ownership to the non-root user
 RUN chown -R nestjs:nodejs /app
