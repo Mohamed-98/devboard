@@ -8,6 +8,7 @@ import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { GetUser } from '../auth/decorators/get-user.decorator';
 import { Role } from 'generated/prisma/client';
+import { SkipWorkspaceCheck } from './decorators/skip-workspace-check.decorator';
 
 import { WorkspaceMemberGuard } from './guards/workspace-member.guard';
 
@@ -17,6 +18,7 @@ export class WorkspaceController {
   constructor(private readonly workspaceService: WorkspaceService) {}
 
   @Post()
+  @SkipWorkspaceCheck()
   @UseGuards(RolesGuard)
   @Roles(Role.ADMIN)
   create(@Body() createWorkspaceDto: CreateWorkspaceDto) {
@@ -31,6 +33,7 @@ export class WorkspaceController {
   }
 
   @Get()
+  @SkipWorkspaceCheck()
   findAll(@GetUser('id') userId: string, @GetUser('role') role: Role) {
     return this.workspaceService.findAll(userId, role);
   }

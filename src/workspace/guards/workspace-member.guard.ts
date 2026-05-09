@@ -9,11 +9,26 @@ import {
 import { PrismaService } from '../../prisma/prisma.service';
 import { Role } from 'generated/prisma/client';
 
+import { Reflector } from '@nestjs/core';
+import { SKIP_WORKSPACE_CHECK_KEY } from '../decorators/skip-workspace-check.decorator';
+
 @Injectable()
 export class WorkspaceMemberGuard implements CanActivate {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private reflector: Reflector,
+  ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
+    const skipCheck = this.reflector.getAllAndOverride<boolean>(
+      SKIP_WORKSPACE_CHECK_KEY,
+      [context.getHandler(), context.getClass()],
+    );
+
+    if (skipCheck) {
+      return true;
+    }
+
     const request = context.switchToHttp().getRequest();
     const user = request.user;
 
@@ -26,76 +41,66 @@ export class WorkspaceMemberGuard implements CanActivate {
       return true;
     }
 
+    // 1. Primary resolution: direct workspaceId
     let workspaceId =
       request.params.workspaceId ||
       request.body?.workspaceId ||
       request.query?.workspaceId;
-    const projectId = request.body?.projectId || request.query?.projectId;
-
-    // If no workspaceId in params or body, but there's an id param, look it up
-    const resourceId = request.params.id;
 
     // UUID validation regex
     const uuidRegex =
       /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
-    // Resolve workspaceId from projectId if available
-    if (!workspaceId && projectId && uuidRegex.test(projectId)) {
-      const project = await this.prisma.project.findUnique({
-        where: { id: projectId },
-        select: { workspaceId: true },
-      });
-      if (project) {
-        workspaceId = project.workspaceId;
-      }
-    }
+    // 2. Secondary resolution: via projectId or resourceId (params.id)
+    if (!workspaceId) {
+      const projectId = request.body?.projectId || request.query?.projectId;
+      const resourceId = request.params.id;
 
-    if (!workspaceId && resourceId && uuidRegex.test(resourceId)) {
-      // Try to find if it's a project
-      const project = await this.prisma.project.findUnique({
-        where: { id: resourceId },
-        select: { workspaceId: true },
-      });
-
-      if (project) {
-        workspaceId = project.workspaceId;
-      } else {
-        // Try to find if it's a task
-        const task = await this.prisma.task.findUnique({
-          where: { id: resourceId },
-          include: { project: { select: { workspaceId: true } } },
+      // Try projectId first
+      if (projectId && uuidRegex.test(projectId)) {
+        const project = await this.prisma.project.findUnique({
+          where: { id: projectId },
+          select: { workspaceId: true },
         });
-        if (task) {
-          workspaceId = task.project.workspaceId;
+        workspaceId = project?.workspaceId;
+      }
+
+      // Try resourceId if still not found
+      if (!workspaceId && resourceId && uuidRegex.test(resourceId)) {
+        // Try project lookup
+        const project = await this.prisma.project.findUnique({
+          where: { id: resourceId },
+          select: { workspaceId: true },
+        });
+
+        if (project) {
+          workspaceId = project.workspaceId;
         } else {
-          // Check if the resourceId itself is a workspaceId
-          const workspace = await this.prisma.workspace.findUnique({
+          // Try task lookup
+          const task = await this.prisma.task.findUnique({
             where: { id: resourceId },
-            select: { id: true },
+            include: { project: { select: { workspaceId: true } } },
           });
-          if (workspace) {
-            workspaceId = workspace.id;
+          if (task) {
+            workspaceId = task.project.workspaceId;
+          } else {
+            // Try workspace lookup (id itself might be workspaceId)
+            const workspace = await this.prisma.workspace.findUnique({
+              where: { id: resourceId },
+              select: { id: true },
+            });
+            workspaceId = workspace?.id;
           }
         }
       }
     }
 
+    // 3. Final check: can we determine membership?
     if (!workspaceId) {
-      // For non-admins, if we can't resolve a workspace:
-      // 1. Allow GET requests to list endpoints (no ID in params/body/query)
-      //    We assume the service will filter results (e.g., ProjectService.findAll).
-      // 2. Deny specific resource access or mutations if we should have resolved it.
-      const isResourceAccess = !!(resourceId || projectId);
-      const isMutation = request.method !== 'GET';
-
-      if (isMutation || isResourceAccess) {
-        // If it's a mutation or specific resource access and we can't find a workspace,
-        // we deny access to be safe. If the ID is invalid or missing, 
-        // the ValidationPipe or Service would have handled it, but a 403 is safer than a leak.
-        throw new ForbiddenException('Could not determine workspace context for this request');
-      }
-
-      return true;
+      // If we've reached here, it means we couldn't resolve a workspaceId
+      // and the endpoint didn't have @SkipWorkspaceCheck().
+      // To be safe and prevent data leaks (Bug #2), we deny access.
+      throw new ForbiddenException('Workspace context is required for this request');
     }
 
     // Ensure workspaceId is a valid UUID before querying Prisma
