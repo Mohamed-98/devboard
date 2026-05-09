@@ -14,7 +14,7 @@ RUN npm install
 
 # Copy Prisma schema and generated folder (if it exists)
 COPY prisma ./prisma/
-COPY generated ./generated/
+COPY prisma.config.ts ./
 
 # Copy the rest of the application code
 COPY . .
