@@ -33,7 +33,7 @@ DevBoard is a high-performance project management board backend built with **Nes
 
 1. **Clone the repository**:
    ```bash
-   git clone <[repository-url](https://github.com/Mohamed-98/devboard.git)>
+   git clone https://github.com/Mohamed-98/devboard.git
    cd devboard
    ```
 
