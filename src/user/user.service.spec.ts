@@ -51,12 +51,11 @@ describe('UserService Cache Test', () => {
       3600000,
     );
 
-    // Second call: HIT
     cacheManager.get.mockResolvedValueOnce(mockUser);
 
     const result2 = await service.findByEmail(email);
     expect(result2).toEqual(mockUser);
-    expect(prisma.user.findUnique).toHaveBeenCalledTimes(1); // Only once from first call
+    expect(prisma.user.findUnique).toHaveBeenCalledTimes(1);
   });
 
   it('should invalidate cache on updateRole', async () => {

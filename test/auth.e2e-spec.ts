@@ -18,8 +18,7 @@ describe('Auth (e2e)', () => {
     await app.init();
 
     prisma = app.get<PrismaService>(PrismaService);
-    
-    // Clean up test user if it exists
+
     await prisma.user.deleteMany({
       where: { email: 'e2e-test@example.com' },
     });

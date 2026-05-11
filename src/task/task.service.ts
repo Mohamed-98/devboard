@@ -1,11 +1,16 @@
-import { Injectable, NotFoundException, BadRequestException, Inject, Logger } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+  Inject,
+  Logger,
+} from '@nestjs/common';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
 import { TaskFilterDto } from './dto/task-filter.dto';
 import { PrismaService } from '../prisma/prisma.service';
-
 
 import { ActivityLogService } from '../activity-log/activity-log.service';
 
@@ -25,14 +30,21 @@ export class TaskService {
     });
 
     if (!project) {
-      throw new NotFoundException(`Project with ID ${createTaskDto.projectId} not found`);
+      throw new NotFoundException(
+        `Project with ID ${createTaskDto.projectId} not found`,
+      );
     }
 
     const task = await this.prisma.task.create({
       data: createTaskDto,
     });
 
-    await this.activityLogService.createLog(task.id, userId, 'CREATE', `Task created: ${task.title}`);
+    await this.activityLogService.createLog(
+      task.id,
+      userId,
+      'CREATE',
+      `Task created: ${task.title}`,
+    );
 
     await this.invalidateCache(task.projectId);
 
@@ -40,14 +52,24 @@ export class TaskService {
   }
 
   async findAll(filters: TaskFilterDto = {}) {
-    const { status, priority, assigneeId, projectId, page = 1, limit = 10 } = filters;
-    
+    const {
+      status,
+      priority,
+      assigneeId,
+      projectId,
+      page = 1,
+      limit = 10,
+    } = filters;
+
     let cacheKey: string | null = null;
     if (projectId) {
-      const version = (await this.cacheManager.get<number>(`tasks:project:${projectId}:version`)) || 0;
+      const version =
+        (await this.cacheManager.get<number>(
+          `tasks:project:${projectId}:version`,
+        )) || 0;
       cacheKey = `tasks:project:${projectId}:v${version}:${JSON.stringify(filters)}`;
     }
-    
+
     if (cacheKey) {
       const cached = await this.cacheManager.get(cacheKey);
       if (cached) {
@@ -100,8 +122,6 @@ export class TaskService {
     return result;
   }
 
-
-
   async findOne(id: string) {
     const task = await this.prisma.task.findUnique({
       where: { id },
@@ -129,7 +149,12 @@ export class TaskService {
       data: updateTaskDto,
     });
 
-    await this.activityLogService.createLog(id, userId, 'UPDATE', `Task updated: ${Object.keys(updateTaskDto).join(', ')}`);
+    await this.activityLogService.createLog(
+      id,
+      userId,
+      'UPDATE',
+      `Task updated: ${Object.keys(updateTaskDto).join(', ')}`,
+    );
 
     await this.invalidateCache(task.projectId);
     if (updatedTask.projectId !== task.projectId) {
@@ -141,9 +166,13 @@ export class TaskService {
 
   async remove(id: string, userId: string) {
     const task = await this.findOne(id);
-    
-    // Log before deletion because of Cascade constraint
-    await this.activityLogService.createLog(id, userId, 'DELETE', `Task deleted: ${task.title}`);
+
+    await this.activityLogService.createLog(
+      id,
+      userId,
+      'DELETE',
+      `Task deleted: ${task.title}`,
+    );
 
     await this.invalidateCache(task.projectId);
 
@@ -154,8 +183,6 @@ export class TaskService {
 
   async assignTask(taskId: string, userId: string, actorId: string) {
     const task = await this.findOne(taskId);
-
-    // Verify user exists and is a member of the workspace
     const workspace = await this.prisma.workspace.findFirst({
       where: {
         id: task.project.workspaceId,
@@ -166,7 +193,9 @@ export class TaskService {
     });
 
     if (!workspace) {
-      throw new BadRequestException('User is not a member of the workspace or does not exist');
+      throw new BadRequestException(
+        'User is not a member of the workspace or does not exist',
+      );
     }
 
     const updatedTask = await this.prisma.task.update({
@@ -179,7 +208,12 @@ export class TaskService {
       },
     });
 
-    await this.activityLogService.createLog(taskId, actorId, 'ASSIGN', `Task assigned to user ${userId}`);
+    await this.activityLogService.createLog(
+      taskId,
+      actorId,
+      'ASSIGN',
+      `Task assigned to user ${userId}`,
+    );
 
     await this.invalidateCache(updatedTask.projectId);
 
@@ -188,9 +222,15 @@ export class TaskService {
 
   private async invalidateCache(projectId: string) {
     if (projectId) {
-      const version = (await this.cacheManager.get<number>(`tasks:project:${projectId}:version`)) || 0;
-      await this.cacheManager.set(`tasks:project:${projectId}:version`, version + 1, 86400000); // 24 hours
+      const version =
+        (await this.cacheManager.get<number>(
+          `tasks:project:${projectId}:version`,
+        )) || 0;
+      await this.cacheManager.set(
+        `tasks:project:${projectId}:version`,
+        version + 1,
+        86400000,
+      ); // 24 hours
     }
   }
 }
-

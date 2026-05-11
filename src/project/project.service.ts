@@ -9,13 +9,14 @@ export class ProjectService {
   constructor(private prisma: PrismaService) {}
 
   async create(createProjectDto: CreateProjectDto) {
-    // Ensure workspace exists
     const workspace = await this.prisma.workspace.findUnique({
       where: { id: createProjectDto.workspaceId },
     });
 
     if (!workspace) {
-      throw new NotFoundException(`Workspace with ID ${createProjectDto.workspaceId} not found`);
+      throw new NotFoundException(
+        `Workspace with ID ${createProjectDto.workspaceId} not found`,
+      );
     }
 
     return this.prisma.project.create({
@@ -24,15 +25,16 @@ export class ProjectService {
   }
 
   async findAll(user: any) {
-    const where = user.role === Role.ADMIN
-      ? {}
-      : {
-          workspace: {
-            members: {
-              some: { id: user.id },
+    const where =
+      user.role === Role.ADMIN
+        ? {}
+        : {
+            workspace: {
+              members: {
+                some: { id: user.id },
+              },
             },
-          },
-        };
+          };
 
     return this.prisma.project.findMany({
       where,
@@ -46,7 +48,6 @@ export class ProjectService {
       },
     });
   }
-
 
   async findOne(id: string) {
     const project = await this.prisma.project.findUnique({
@@ -85,4 +86,3 @@ export class ProjectService {
     });
   }
 }
-
