@@ -16,8 +16,8 @@ export class AppController {
     await this.cacheManager.set('test_key', 'Redis connection is working!');
     
     // Test getting the value back
-    const value = await this.cacheManager.get('test_key');
+    const value = await this.cacheManager.get<string>('test_key');
     
-    return `${this.appService.getHello()} Cache value: ${value}`;
+    return `${this.appService.getHello()} Cache value: ${value ?? 'No value found'}`;
   }
 }
