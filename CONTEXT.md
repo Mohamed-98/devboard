@@ -18,14 +18,12 @@
 - ✅ Phase 5 — Tasks & Comments (complete)
 - ✅ Phase 6 — Activity Log (complete)
 - ✅ Phase 7 — Redis Caching (complete)
-- 🔄 Phase 8 — Docker & GitHub (in progress)
-  - ✅ Write Dockerfile for NestJS app
-  - ✅ Add app service to docker-compose.yml
-  - ✅ Add .dockerignore
-  - ✅ Test full stack with: docker compose up --build
-  - ✅ Create GitHub repo and push project
-  - ✅ Write README with setup instructions
-  - ✅ .env.example committed (never .env itself)
+- ✅ Phase 8 — Docker & GitHub (complete)
+- 🔄 Phase 9 — Testing (in progress)
+  - ✅ Write unit tests for AuthService (complete)
+  - ✅ Write unit tests for TaskService (complete)
+  - ✅ Write e2e test for register + login flow (complete)
+  - ✅ All tests passing: npm run test (complete)
 
 ## Key Decisions & Workarounds
 
