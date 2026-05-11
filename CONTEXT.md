@@ -22,10 +22,10 @@
   - ✅ Write Dockerfile for NestJS app
   - ✅ Add app service to docker-compose.yml
   - ✅ Add .dockerignore
-  - ⬜ Test full stack with: docker compose up --build
-  - ⬜ Create GitHub repo and push project
-  - ⬜ Write README with setup instructions
-  - ⬜ .env.example committed (never .env itself)
+  - ✅ Test full stack with: docker compose up --build
+  - ✅ Create GitHub repo and push project
+  - ✅ Write README with setup instructions
+  - ✅ .env.example committed (never .env itself)
 
 ## Key Decisions & Workarounds
 
