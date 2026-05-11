@@ -40,23 +40,39 @@ export class WorkspaceMemberGuard implements CanActivate {
       return true;
     }
 
+    // UUID validation regex
+    const uuidRegex =
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
     // 1. Primary resolution: direct workspaceId
     let workspaceId =
       request.params.workspaceId ||
       request.body?.workspaceId ||
       request.query?.workspaceId;
 
-    // UUID validation regex
-    const uuidRegex =
-      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-
-    // 2. Secondary resolution: via projectId or resourceId (params.id)
+    // 2. Secondary resolution: via projectId, taskId, or resourceId (params.id)
     if (!workspaceId) {
-      const projectId = request.body?.projectId || request.query?.projectId;
+      const projectId =
+        request.params.projectId ||
+        request.body?.projectId ||
+        request.query?.projectId;
+      const taskId =
+        request.params.taskId ||
+        request.body?.taskId ||
+        request.query?.taskId;
       const resourceId = request.params.id;
 
-      // Try projectId first
-      if (projectId && uuidRegex.test(projectId)) {
+      // Try taskId first
+      if (taskId && uuidRegex.test(taskId)) {
+        const task = await this.prisma.task.findUnique({
+          where: { id: taskId },
+          include: { project: { select: { workspaceId: true } } },
+        });
+        workspaceId = task?.project?.workspaceId;
+      }
+
+      // Try projectId
+      if (!workspaceId && projectId && uuidRegex.test(projectId)) {
         const project = await this.prisma.project.findUnique({
           where: { id: projectId },
           select: { workspaceId: true },
@@ -83,12 +99,25 @@ export class WorkspaceMemberGuard implements CanActivate {
           if (task) {
             workspaceId = task.project.workspaceId;
           } else {
-            // Try workspace lookup (id itself might be workspaceId)
-            const workspace = await this.prisma.workspace.findUnique({
+            // Try comment lookup
+            const comment = await this.prisma.comment.findUnique({
               where: { id: resourceId },
-              select: { id: true },
+              include: {
+                task: {
+                  include: { project: { select: { workspaceId: true } } },
+                },
+              },
             });
-            workspaceId = workspace?.id;
+            if (comment) {
+              workspaceId = comment.task.project.workspaceId;
+            } else {
+              // Try workspace lookup (id itself might be workspaceId)
+              const workspace = await this.prisma.workspace.findUnique({
+                where: { id: resourceId },
+                select: { id: true },
+              });
+              workspaceId = workspace?.id;
+            }
           }
         }
       }
